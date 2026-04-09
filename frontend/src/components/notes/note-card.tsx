@@ -19,11 +19,13 @@ export function NoteCard({ title, body }: NoteCardProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div className="border border-border rounded-sm p-4 cursor-pointer transition-[border-color] hover:border-foreground/20 select-none">
+      <div className="border border-border rounded-lg p-4 cursor-pointer transition-[border-color] hover:border-foreground/20 select-none bg-background">
         {title && (
-          <p className="text-sm font-medium mb-1.5 leading-snug">{title}</p>
+          <p className="text-[20px] font-medium mb-3.5 text-foreground/95">
+            {title}
+          </p>
         )}
-        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+        <p className="text-[14px] text-foreground leading-relaxed whitespace-pre-line font-normal">
           {body}
         </p>
 
