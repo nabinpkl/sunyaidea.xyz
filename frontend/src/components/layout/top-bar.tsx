@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Toggle } from "@/components/ui/toggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ThemeToggle } from "./theme-toggle"
+import { useSidebar } from "@/components/ui/sidebar"
 
 interface TopBarProps {
   viewMode: "grid" | "list"
@@ -12,9 +13,17 @@ interface TopBarProps {
 }
 
 export function TopBar({ viewMode, onViewChange }: TopBarProps) {
+  const { toggleSidebar } = useSidebar()
+
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-border bg-background px-3">
-      <Button variant="ghost" size="icon" className="shrink-0">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="shrink-0"
+        onClick={toggleSidebar}
+        aria-label="Toggle sidebar"
+      >
         <Menu className="size-5" />
       </Button>
 
