@@ -13,10 +13,10 @@ export function AppShell() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen overflow-hidden bg-background">
-        <SideNav />
-        <div className="flex flex-col flex-1 min-w-0">
-          <TopBar viewMode={viewMode} onViewChange={setViewMode} />
+      <div className="flex flex-col h-screen overflow-hidden bg-background">
+        <TopBar viewMode={viewMode} onViewChange={setViewMode} />
+        <div className="flex flex-1 min-w-0">
+          <SideNav />
           <ScrollArea className="flex-1">
             <main className="px-6 pb-12">
               <NewNoteBar />
