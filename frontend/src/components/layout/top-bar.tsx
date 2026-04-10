@@ -1,9 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import { Search, LayoutGrid, List, Wallet } from "lucide-react"
+import { Search, LayoutGrid, List } from "lucide-react"
 import { Toggle } from "@/components/ui/toggle"
 import { ThemeToggle } from "./theme-toggle"
+import { WalletButton } from "./wallet-button"
 
 interface TopBarProps {
   viewMode: "grid" | "list"
@@ -60,10 +61,7 @@ export function TopBar({ viewMode, onViewChange }: TopBarProps) {
 
         <ThemeToggle />
 
-        <button className="ml-1 flex items-center gap-2 px-3 h-8 rounded-sm text-[12px] text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors font-mono tracking-tight">
-          <Wallet className="size-3.5 shrink-0" />
-          <span className="hidden sm:block">connect</span>
-        </button>
+        <WalletButton />
       </div>
     </header>
   )

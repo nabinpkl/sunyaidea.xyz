@@ -25,6 +25,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 
 # Frontend libs
+- pnpm as pacakge manager
 - Tailwind css v4+ (css first)
 - Tanstack query, zustand
 - motion/react for animation
