@@ -72,10 +72,27 @@ contract CommitRegistry is EIP712 {
     // ─────────────────────────────────────────────────────────────────────────
     // Typed-data schema
     // Changing this struct requires a redeploy. That is the version mechanism.
+    //
+    // `title` and `description` are hardcoded strings the wallet shows to the
+    // user at sign-time. They have no effect on chain semantics — the contract
+    // does not store them and does not emit them. They exist to turn an
+    // otherwise opaque signature prompt into something a human can read and
+    // reject. Because they are folded into the digest, the contract and the
+    // frontend cannot drift: if the frontend tries to sign a different string,
+    // the digest won't match and the tx reverts.
     // ─────────────────────────────────────────────────────────────────────────
 
-    bytes32 private constant COMMIT_TYPEHASH =
-        keccak256("Commit(address identity,bytes32 payloadHash)");
+    string public constant TITLE = "Commit an idea to the blockchain";
+    string public constant DESCRIPTION =
+        "I am committing a cryptographic hash of an idea. The original content "
+        "stays on my device. Anyone can later re-hash the content and verify "
+        "it matches this commit.";
+
+    bytes32 private constant COMMIT_TYPEHASH = keccak256(
+        "Commit(string title,string description,address identity,bytes32 payloadHash)"
+    );
+    bytes32 private constant TITLE_HASH = keccak256(bytes(TITLE));
+    bytes32 private constant DESCRIPTION_HASH = keccak256(bytes(DESCRIPTION));
 
     // ─────────────────────────────────────────────────────────────────────────
     // Events
@@ -103,7 +120,11 @@ contract CommitRegistry is EIP712 {
     // Constructor
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// @dev "CommitRegistry" + "1" bake into the EIP-712 domain separator.
+    /// @dev Domain name is deliberately generic ("CommitRegistry") rather than
+    ///      any product brand. The contract has no owner, no admin, no brand —
+    ///      if the frontend that originally served it goes away, any other
+    ///      frontend (or CLI, or wallet's raw tx composer) can keep using it
+    ///      without misleading users about what they're signing.
     ///      OZ's EIP712 base recomputes _domainSeparatorV4() dynamically when
     ///      block.chainid changes (handles forks correctly).
     ///      Cross-chain replay is impossible: same sig, different chainId =
@@ -130,7 +151,15 @@ contract CommitRegistry is EIP712 {
         bytes calldata sig
     ) external {
         bytes32 digest = _hashTypedDataV4(
-            keccak256(abi.encode(COMMIT_TYPEHASH, identity, payloadHash))
+            keccak256(
+                abi.encode(
+                    COMMIT_TYPEHASH,
+                    TITLE_HASH,
+                    DESCRIPTION_HASH,
+                    identity,
+                    payloadHash
+                )
+            )
         );
 
         if (!_isValidSig(identity, digest, sig)) revert InvalidSignature();
@@ -145,13 +174,22 @@ contract CommitRegistry is EIP712 {
     /// @notice Returns the exact EIP-712 digest the caller must sign.
     ///         Call this from the frontend before asking the wallet to sign —
     ///         confirms that client-side digest construction matches on-chain.
-    ///         The wallet will display: CommitRegistry | identity | payloadHash.
+    ///         The wallet will display: Sunya Ideas | title | description |
+    ///         identity | payloadHash.
     function buildDigest(
         address identity,
         bytes32 payloadHash
     ) external view returns (bytes32) {
         return _hashTypedDataV4(
-            keccak256(abi.encode(COMMIT_TYPEHASH, identity, payloadHash))
+            keccak256(
+                abi.encode(
+                    COMMIT_TYPEHASH,
+                    TITLE_HASH,
+                    DESCRIPTION_HASH,
+                    identity,
+                    payloadHash
+                )
+            )
         );
     }
 

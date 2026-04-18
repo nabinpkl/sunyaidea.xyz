@@ -3,7 +3,7 @@
 import { useAppKit, useAppKitAccount, useAppKitNetwork, useDisconnect } from '@reown/appkit/react'
 import { Wallet, Copy, LogOut, Check } from 'lucide-react'
 import { useState } from 'react'
-import { mainnet, arbitrum, base } from '@reown/appkit/networks'
+import { sepolia } from '@reown/appkit/networks'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-const NETWORKS = [mainnet, arbitrum, base]
+const NETWORKS = [sepolia]
 
 export function WalletButton() {
   const { open } = useAppKit()
@@ -39,7 +39,6 @@ export function WalletButton() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
 
-          {/* Address + copy */}
           <DropdownMenuItem onClick={copyAddress} className="font-mono text-[11px] gap-2 cursor-pointer">
             {copied
               ? <Check className="size-3 shrink-0" />
@@ -50,7 +49,6 @@ export function WalletButton() {
 
           <DropdownMenuSeparator />
 
-          {/* Network switcher */}
           {NETWORKS.map(network => (
             <DropdownMenuItem
               key={network.id}
@@ -67,7 +65,6 @@ export function WalletButton() {
 
           <DropdownMenuSeparator />
 
-          {/* Disconnect */}
           <DropdownMenuItem
             onClick={() => disconnect()}
             className="text-[11px] gap-2 cursor-pointer text-destructive focus:text-destructive"
