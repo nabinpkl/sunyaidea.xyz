@@ -81,7 +81,7 @@ export function WalletButton() {
             className="text-[13px] gap-2 cursor-pointer text-destructive focus:text-destructive"
           >
             <LogOut className="size-3.5 shrink-0" />
-            disconnect
+            Disconnect
           </DropdownMenuItem>
 
         </DropdownMenuContent>
