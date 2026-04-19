@@ -16,14 +16,25 @@ contract MockERC1271 is IERC1271 {
         approvedDigest = digest;
     }
 
-    function isValidSignature(bytes32 digest, bytes memory)
-        external
-        view
-        override
-        returns (bytes4)
-    {
+    function isValidSignature(
+        bytes32 digest,
+        bytes memory
+    ) external view override returns (bytes4) {
         if (digest == approvedDigest) return IERC1271.isValidSignature.selector;
         return 0xffffffff;
+    }
+}
+
+/// @dev Identity contract whose isValidSignature always reverts.
+///      Used to prove OZ's SignatureChecker catches the revert and returns
+///      false rather than propagating it — so commit() always fails with
+///      InvalidSignature, never with an unexpected error type.
+contract RevertingERC1271 {
+    function isValidSignature(
+        bytes32,
+        bytes memory
+    ) external pure returns (bytes4) {
+        revert("boom");
     }
 }
 
@@ -113,6 +124,22 @@ contract CommitRegistryTest is Test {
         registry.commit(signer, payloadHash, sig);
     }
 
+    /// @dev Proves EIP-712 domain separator includes chainid, so the same
+    ///      signature cannot be replayed against a forked chain. OZ's EIP712
+    ///      base recomputes the domain separator when block.chainid changes.
+    function test_Commit_RevertsWhenChainIdChanges() public {
+        bytes32 payloadHash = keccak256("chain-bound");
+        bytes memory sig = _signAs(SIGNER_PK, signer, payloadHash);
+
+        // Signature valid on current chain.
+        registry.commit(signer, payloadHash, sig);
+
+        // Replay attempt on a different chain — same calldata, different chainid.
+        vm.chainId(999);
+        vm.expectRevert(CommitRegistry.InvalidSignature.selector);
+        registry.commit(signer, payloadHash, sig);
+    }
+
     /// @dev Documents deliberate replay behavior (see contract header).
     ///      Off-chain tooling must dedupe by earliest (identity, payloadHash).
     function test_Commit_AcceptsDuplicate_ReplayByDesign() public {
@@ -133,8 +160,29 @@ contract CommitRegistryTest is Test {
             uint256(uint160(signer)),
             "identity topic"
         );
-        (uint256 ts) = abi.decode(logs[0].data, (uint256));
+        uint256 ts = abi.decode(logs[0].data, (uint256));
         assertEq(ts, 2_000, "second event carries later timestamp");
+    }
+
+    /// @dev secp256k1 curve order. Signatures with s > n/2 are malleable:
+    ///      the pair (r, n - s, v^1) is a valid signature for the same message
+    ///      and signer. OZ's ECDSA rejects s in the upper half to prevent this.
+    uint256 internal constant SECP256K1_N =
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
+
+    function test_Commit_RevertsOnHighSSignature() public {
+        bytes32 payloadHash = keccak256("malleable");
+        bytes32 digest = registry.buildDigest(signer, payloadHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(SIGNER_PK, digest);
+
+        // Flip s to its high-half counterpart and invert v. Mathematically this
+        // is still a valid ECDSA signature for (signer, digest), but OZ rejects it.
+        bytes32 highS = bytes32(SECP256K1_N - uint256(s));
+        uint8 flippedV = v == 27 ? 28 : 27;
+        bytes memory malleableSig = abi.encodePacked(r, highS, flippedV);
+
+        vm.expectRevert(CommitRegistry.InvalidSignature.selector);
+        registry.commit(signer, payloadHash, malleableSig);
     }
 
     // ────────────────────────────────────────────────────────────────────
@@ -165,6 +213,18 @@ contract CommitRegistryTest is Test {
         registry.commit(address(account), payloadHash, sig);
     }
 
+    function test_Commit_RevertsGracefullyOnERC1271Revert() public {
+        RevertingERC1271 account = new RevertingERC1271();
+        bytes32 payloadHash = keccak256("reverting account");
+        bytes memory sig = hex"00";
+
+        // Must revert with InvalidSignature (our clean error), not with the
+        // mock's "boom" string. Proves attackers can't brick callers by
+        // deploying a hostile identity contract.
+        vm.expectRevert(CommitRegistry.InvalidSignature.selector);
+        registry.commit(address(account), payloadHash, sig);
+    }
+
     // ────────────────────────────────────────────────────────────────────
     // Fuzz
     // ────────────────────────────────────────────────────────────────────
@@ -189,11 +249,11 @@ contract CommitRegistryTest is Test {
     // Helpers
     // ────────────────────────────────────────────────────────────────────
 
-    function _signAs(uint256 pk, address identity, bytes32 payloadHash)
-        internal
-        view
-        returns (bytes memory)
-    {
+    function _signAs(
+        uint256 pk,
+        address identity,
+        bytes32 payloadHash
+    ) internal view returns (bytes memory) {
         bytes32 digest = registry.buildDigest(identity, payloadHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pk, digest);
         return abi.encodePacked(r, s, v);
@@ -201,14 +261,16 @@ contract CommitRegistryTest is Test {
 
     /// @dev Local copy of OZ MessageHashUtils.toTypedDataHash to avoid an import
     ///      just for one line of test-side reconstruction.
-    function _toTypedDataHash(bytes32 domain, bytes32 structHash)
-        private
-        pure
-        returns (bytes32 digest)
-    {
+    function _toTypedDataHash(
+        bytes32 domain,
+        bytes32 structHash
+    ) private pure returns (bytes32 digest) {
         assembly {
             let ptr := mload(0x40)
-            mstore(ptr, hex"1901000000000000000000000000000000000000000000000000000000000000")
+            mstore(
+                ptr,
+                hex"1901000000000000000000000000000000000000000000000000000000000000"
+            )
             mstore(add(ptr, 0x02), domain)
             mstore(add(ptr, 0x22), structHash)
             digest := keccak256(ptr, 0x42)

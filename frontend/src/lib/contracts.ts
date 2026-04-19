@@ -4,6 +4,14 @@ export const commitRegistryAddress = {
   [sepolia.id]: '0xB3A6CcC60E621857124596Ee690eef2175547B24',
 } as const satisfies Record<number, `0x${string}`>
 
+// Block the registry was deployed at. Used by the verify flow as the
+// `fromBlock` for getLogs so we don't scan from genesis. This is constant
+// for the life of v0; redeploying the contract means a new generation and
+// this value is part of that migration.
+export const commitRegistryDeployBlock = {
+  [sepolia.id]: BigInt(10683201),
+} as const satisfies Record<number, bigint>
+
 export const commitRegistryAbi = [
   {
     type: 'function',

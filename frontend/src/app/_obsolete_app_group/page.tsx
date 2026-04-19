@@ -1,5 +1,5 @@
 import { HomePanel } from "@/components/home/home-panel"
 
-export default function Home() {
+export default function CommitPage() {
   return <HomePanel />
 }

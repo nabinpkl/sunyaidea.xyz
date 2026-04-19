@@ -5,6 +5,9 @@ import { headers } from "next/headers";
 import { cookieToInitialState } from "wagmi";
 import { wagmiConfig } from "@/lib/web3-config";
 import { Web3Provider } from "@/components/providers/web3-provider";
+import { TopBar } from "@/components/layout/top-bar";
+import { AppNav } from "@/components/layout/app-nav";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -44,10 +47,16 @@ export default async function RootLayout({
       <head>
         <link rel="icon" href="/logo.png" />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="h-screen overflow-hidden flex flex-col bg-background">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem enableColorScheme={false}>
           <Web3Provider initialState={initialState}>
-            {children}
+            <TopBar />
+            <AppNav />
+            <ScrollArea className="flex-1">
+              <main className="max-w-6xl mx-auto px-6">
+                {children}
+              </main>
+            </ScrollArea>
           </Web3Provider>
         </ThemeProvider>
       </body>
