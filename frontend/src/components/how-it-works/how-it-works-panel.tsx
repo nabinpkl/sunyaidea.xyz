@@ -19,11 +19,6 @@ function sourcifyUrl(chainId: number, address: string) {
   return `https://repo.sourcify.dev/${chainId}/${address}`
 }
 
-/// How it works: plain-language explainer. Grounds the user in what Sunya
-/// actually is (a commit registry), what it is not (a notes app, a proof of
-/// authorship by itself), and what they are responsible for (keeping the
-/// plaintext, committing before sharing). Written in prose, not bullets,
-/// because this is a document, not a checklist.
 export function HowItWorksPanel() {
   return (
     <section className="flex flex-col gap-12 py-12 max-w-3xl mx-auto">
@@ -32,7 +27,7 @@ export function HowItWorksPanel() {
           How it works
         </h1>
         <p className="text-[16px] text-muted-foreground leading-relaxed">
-          Sunya is a idea commit registry. You write an idea on your device, and a
+          Sunya is an idea commit registry. You write an idea on your device, and a
           cryptographic fingerprint of that text is signed by your key and
           written to a public blockchain. Only the fingerprint is ever sent
           anywhere. The text itself stays with you.
@@ -45,6 +40,10 @@ export function HowItWorksPanel() {
           bytecode. Every commit you see in this app was emitted by one of
           these addresses, and the source is published on Sourcify so anyone
           can reproduce the bytecode and read what the contract actually does.
+
+        </p>
+        <p>
+          Note: Sepolia is a testnet, so its deployment is for testing purposes only.
         </p>
         <div className="flex flex-col border border-border rounded-sm overflow-hidden">
           {deployments.map(({ chainId }, i) => {
@@ -94,19 +93,17 @@ export function HowItWorksPanel() {
 
       <Section title="The commit">
         <p>
-          When you commit, three things happen in sequence on your device.
-          First, your browser computes a <Mono>keccak256</Mono> hash of the
-          plaintext, which is a fixed-length fingerprint that changes if even
-          a single character changes. Second, your wallet signs a typed
-          message containing that hash. Third, the signature and the hash
-          are submitted to the <Mono>CommitRegistry</Mono> contract, which
-          verifies the signature on-chain and emits a{" "}
-          <Mono>Committed</Mono> event.
+          When you click commit, your browser handles the heavy lifting locally. It starts by 
+          generating a <Mono>keccak256</Mono> hash of your text, creating a unique 
+          fingerprint that would break if you changed even a single comma. Your wallet 
+          then signs a message containing that hash, and finally, the signature is 
+          pushed to the <Mono>CommitRegistry</Mono> contract. The contract 
+          verifies the signature on-chain before recording a <Mono>Committed</Mono> event.
         </p>
         <p>
-          The plaintext never leaves your device. Sunya operates no server,
-          no database, no relayer, no indexer. You bring your own wallet,
-          you sign your own transactions, you pay your own gas.
+          The plaintext never leaves your device. Sunya operates no server, 
+          no database, and no indexers. You bring your own wallet, sign your 
+          own transactions, and handle your own gas.
         </p>
       </Section>
 
@@ -116,21 +113,21 @@ export function HowItWorksPanel() {
           you can check yourself in under a minute, without reading any
           source code. Open your browser&apos;s developer tools, switch to the
           Network tab, and start typing into the commit box. Every character,
-          every file drop, every keystroke. Watch the list. Nothing is sent
+          every file drop, and every keystroke is local. Watch the list. Nothing is sent
           anywhere. The hash is computed in JavaScript that already ran when
           the page loaded, so there is no network request to make.
         </p>
         <p>
           When you do click Commit, the only network activity you will see is
           your wallet talking to the chain&apos;s RPC endpoint to submit the
-          signed transaction. That traffic carries the hash and the signature.
-          It does not carry your plaintext, because the plaintext was never
+          signed transaction. That traffic carries the hash and the signature, 
+          but it does not carry your plaintext, because the plaintext was never
           read by anything except the hash function.
         </p>
         <p>
           If you want to be stricter, use DevTools to block all requests to
-          this domain <em>after</em> the page has loaded (Network tab → right
-          click a request → Block request domain). The app keeps working:
+          this domain after the page has loaded (Network tab, right
+          click a request, Block request domain). The app keeps working:
           hashing still runs locally, the wallet still talks to the chain
           directly, and you have now cut Sunya out of the loop entirely for
           the rest of the session. There is nothing we could send or receive
@@ -140,12 +137,11 @@ export function HowItWorksPanel() {
 
       <Section title="The reveal">
         <p>
-          Later, if the idea is contested in a dispute, a priority argument,
-          or a scoop, you can reveal the original plaintext. Anyone can
-          re-hash it themselves and confirm that the hash matches the one
-          recorded on chain at a specific block, signed by your key. No
-          trust in Sunya is required. No trust in any third party is
-          required. The chain&apos;s block timestamp is the anchor.
+          Later, if the idea is contested in a dispute or a priority argument, 
+          you can reveal the original plaintext. Anyone can re-hash it themselves 
+          to confirm that the hash matches the one recorded on chain at a specific 
+          block, signed by your key. No trust in Sunya is required, and no trust 
+          in any third party is required. The chain&apos;s block timestamp is the anchor.
         </p>
         <p>
           The Verify page on this app is one way to do that check, but it is
@@ -157,9 +153,9 @@ export function HowItWorksPanel() {
       <Section title="If you lose the plaintext">
         <p>
           The commit remains on chain. Your signed hash is still there,
-          still timestamped, still verifiable as yours. But without the
-          original bytes you can no longer <em>reveal</em> what was
-          committed. A hash is a one-way function. You cannot recover the
+          still timestamped, and still verifiable as yours. But without the
+          original bytes you can no longer reveal what was
+          committed. A hash is a one-way function, so you cannot recover the
           text from it.
         </p>
         <p>
@@ -167,8 +163,8 @@ export function HowItWorksPanel() {
           is that no server can leak what it never had. The trade-off is
           that the responsibility for keeping the original content lives
           with you. If the bytes are gone, the evidence is reduced to
-          &quot;this address committed <em>some</em> hash at this
-          time&quot;, which is rarely enough on its own to matter in a
+          &quot;this address committed some hash at this
+          time,&quot; which is rarely enough on its own to matter in a
           dispute.
         </p>
         <p>
@@ -182,19 +178,18 @@ export function HowItWorksPanel() {
         <p>
           Sunya gives you one strong piece of evidence. You bring the rest.
           A credible case typically combines the commit with drafts, dated
-          notes, related prior work, witnesses, and corroborating
+          notes, related prior work, and corroborating
           communications. The commit anchors a specific claim to a specific
           point in time; the other evidence makes the claim legible and
-          contextualises it.
+          contextualizes it.
         </p>
         <p>
-          There is one behaviour that matters more than any technical
+          There is one behavior that matters more than any technical
           detail: commit first, share later. If you discuss an idea with
-          someone in a message, a call, or a public post before committing
-          it, then anyone with that information can commit the same hash
-          before you. Sunya secures what you commit the moment you commit
-          it. It cannot retroactively protect anything you have already
-          disclosed.
+          someone before committing it, then anyone with that 
+          information can commit the same hash before you. Sunya secures 
+          what you commit the moment you commit it. It cannot retroactively 
+          protect anything you have already disclosed.
         </p>
         <p>
           The wallet you use is your identity here. Protect its keys. If
@@ -206,10 +201,10 @@ export function HowItWorksPanel() {
 
       <Section title="What a commit is not">
         <p>
-          A commit is not a patent. It is not a legal filing. It is not a
-          finding of originality. It is not a guarantee that you had the
-          idea first. It only proves you committed this specific hash at
-          this specific time, signed by this specific key.
+          A commit is not a patent, a legal filing, or a finding of originality. 
+          It is not a guarantee that you had the idea first. It only proves you 
+          committed this specific hash at this specific time, signed by this 
+          specific key.
         </p>
         <p>
           It is one piece of evidence, cryptographically anchored, that no
@@ -220,17 +215,17 @@ export function HowItWorksPanel() {
 
       <Section title="What Sunya does not do">
         <p>
-          There are no user accounts, no stored plaintexts, no recovery
+          There are no user accounts, no stored plaintexts, and no recovery
           flow. There is no &quot;admin&quot; who can edit the registry or
-          reverse a commit. The contract has no owner. The contract is not
-          upgradable; if it ever needs a material change, it will be
+          reverse a commit. The contract has no owner and it is not
+          upgradable. If it ever needs a material change, it will be
           redeployed as a new contract and existing commits will remain
           valid under the old one.
         </p>
         <p>
           The only things Sunya operates are the smart contracts and the
           static files of this client. Everything else, including key
-          custody, gas, plaintext storage, backups, and the decision of
+          custody, gas, plaintext storage, and the decision of
           when to reveal, is yours.
         </p>
       </Section>

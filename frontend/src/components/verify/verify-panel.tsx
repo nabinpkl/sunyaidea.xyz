@@ -92,27 +92,90 @@ export function VerifyPanel() {
           Verify a commit
         </h1>
         <p className="text-[16px] text-muted-foreground leading-relaxed">
-          Re-enter the plaintext or drop the file that was committed. The
-          content is hashed locally and the selected chain is queried
-          directly. No server, no upload. Any matching commits are returned
-          with the identity that signed them.
+          {isConnected || manual ? (
+            <>
+              Re-enter the plaintext or drop the file that was committed. The
+              content is hashed locally and the selected chain is queried
+              directly. No server, no upload. Any matching commits are returned
+              with the identity that signed them.
+            </>
+          ) : (
+            <>
+              Check whether an idea was committed to the chain. Paste the
+              plaintext or drop the file, and its <a
+                href="https://www.techtarget.com/searchdatamanagement/definition/hashing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground underline underline-offset-4 decoration-foreground/30 hover:decoration-foreground transition-colors"
+              >hash</a> is compared directly against the
+              public chain. No wallet is required to verify connecting one
+              only picks which chain to read.
+            </>
+          )}
         </p>
       </header>
 
       {!isConnected && !manual ? (
-        <div className="flex flex-col items-start gap-3">
-          <button
-            onClick={() => open()}
-            className="h-10 px-5 rounded-sm bg-foreground text-background text-[14px] font-medium hover:opacity-90 transition-opacity"
-          >
-            Connect wallet to start
-          </button>
-          <button
-            onClick={() => setManualOpen(true)}
-            className="text-[13px] text-muted-foreground hover:text-foreground underline underline-offset-4"
-          >
-            Verify without connecting →
-          </button>
+        <div className="flex flex-col gap-8">
+          <ol className="flex flex-col gap-5 text-[14px] leading-relaxed">
+            <li className="flex gap-4">
+              <span className="font-mono text-[12px] text-muted-foreground pt-0.5 shrink-0 w-6">
+                01
+              </span>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-foreground">
+                  Bring the original plaintext or file
+                </span>
+                <span className="text-muted-foreground">
+                  Exactly what was committed. Any byte difference produces a
+                  different hash.
+                </span>
+              </div>
+            </li>
+            <li className="flex gap-4">
+              <span className="font-mono text-[12px] text-muted-foreground pt-0.5 shrink-0 w-6">
+                02
+              </span>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-foreground">
+                  Hashing happens in your browser
+                </span>
+                <span className="text-muted-foreground">
+                  The content never leaves your device. Sunya runs no server
+                  and sees nothing.
+                </span>
+              </div>
+            </li>
+            <li className="flex gap-4">
+              <span className="font-mono text-[12px] text-muted-foreground pt-0.5 shrink-0 w-6">
+                03
+              </span>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-foreground">
+                  The chain is read directly
+                </span>
+                <span className="text-muted-foreground">
+                  Any matching commits come back with the signer, block, and
+                  timestamp — trust the chain, not us.
+                </span>
+              </div>
+            </li>
+          </ol>
+
+          <div className="flex flex-col items-start gap-3">
+            <button
+              onClick={() => open()}
+              className="h-10 px-5 rounded-sm bg-foreground text-background text-[14px] font-medium hover:opacity-90 transition-opacity"
+            >
+              Connect wallet to start
+            </button>
+            <button
+              onClick={() => setManualOpen(true)}
+              className="text-[13px] text-muted-foreground hover:text-foreground underline underline-offset-4"
+            >
+              Or verify without connecting — just pick a chain →
+            </button>
+          </div>
         </div>
       ) : !activeChainId ? (
         <div className="flex items-center justify-between gap-4 px-5 h-14 border border-border rounded-sm bg-muted/30">
