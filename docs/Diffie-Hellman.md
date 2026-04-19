@@ -1,7 +1,6 @@
 
 # HOw Https and signal work
 
-Okay. Let me build this up from the very bottom. [binance](https://www.binance.com/en/square/post/1404613253930)
 
 ***
 

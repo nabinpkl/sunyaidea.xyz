@@ -343,8 +343,6 @@ Privacy pools
   → Forward secrecy (old messages can't be decrypted even if key stolen)
 
 
-
-
 #
 
 What EIP-1271 Does
@@ -353,15 +351,3 @@ What EIP-1271 Does
 EIP-2098 compact 64-byte sigs
 
 #
-
-SunyaNotes users:
-  → Open MetaMask
-  → Sign and submit their own transactions
-  → Pay their own gas (Base = fraction of a cent)
-
-Relayer use cases:
-  → Gasless UX (sponsor gas for users)
-  → Account abstraction / ERC-4337 bundlers
-  → Backend-submitted transactions
-
-Do you need any of these?

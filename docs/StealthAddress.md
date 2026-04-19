@@ -1,8 +1,6 @@
 
 
-Okay. Clean simple explanation. No math. [status](https://status.network/blog/what-is-a-stealth-address-blockchain-privacy)
 
-***
 
 ## The Mailbox Analogy
 
@@ -85,23 +83,6 @@ Stealth:     Bob has NO IDEA what P will be before Alice pays
 ```
 
 ***
-
-## And Why It Still Doesn't Help SunyaNotes
-
-```
-In SunyaNotes:
-  There is no Alice. We are both sides.
-  Nobody is paying us.
-  We need to SEND transactions, not receive them.
-  
-  Stealth = for receiving money from an external party
-  SunyaNotes = self-initiated contract interactions
-  
-  Wrong tool. Confirmed. Pool is right tool. [web:1479]
-```
-
-Shall we now build the Pool contract?
-
 
 #
 Perfect. Let's do exactly what you said — start simple with one key, see what breaks, then understand why two keys exist. [blog.plan99](https://blog.plan99.net/ecdh-in-the-payment-protocol-cb2f81962c1b?gi=1e5264bfcf12)

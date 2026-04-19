@@ -1,5 +1,4 @@
 
-Yes both use public key crypto — but in slightly different ways. Here's the full picture:
 
 ***
 

@@ -1,9 +1,7 @@
 
-Yes. You caught it exactly. That's a real active threat RIGHT NOW. [ssh](https://www.ssh.com/academy/how-quantum-computing-threats-impact-cryptography-and-cybersecurity)
-
 ***
 
-## First — Yes RSA Was Used Until Very Recently
+## RSA Was Used Until Very Recently in https
 
 ```
 TLS 1.0/1.1/1.2 with RSA key exchange:
@@ -19,9 +17,9 @@ TLS 1.0/1.1/1.2 with RSA key exchange:
 
 ***
 
-## Your Question — Won't Quantum Decrypt Historical RSA Traffic?
+## Won't Quantum Decrypt Historical RSA Traffic?
 
-**YES. Absolutely. This is already happening.** [ssh](https://www.ssh.com/academy/how-quantum-computing-threats-impact-cryptography-and-cybersecurity)
+**This is already happening.** [ssh](https://www.ssh.com/academy/how-quantum-computing-threats-impact-cryptography-and-cybersecurity)
 
 ```
 "Harvest Now, Decrypt Later" (HNDL) attack:
