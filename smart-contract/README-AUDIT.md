@@ -1,5 +1,8 @@
 # CommitRegistry — Audit Notes
 
+| Base mainnet | 0x3F198BfE7F5CAc7d8825e008e9122e22E143C8F7 | 44889582 | 0xc628b3cdd9469093e5a7b66084c89e1e4ab9d4cfa660cb76bb79d2b9d346f009 | <current git sha> |
+
+
 This file is the source of truth for what [CommitRegistry.sol](src/CommitRegistry.sol)
 does and does not protect against, which tests demonstrate each property,
 and which trade-offs were accepted deliberately.

@@ -1,7 +1,8 @@
-import { sepolia } from '@reown/appkit/networks'
+import { sepolia, base } from '@reown/appkit/networks'
 
 export const commitRegistryAddress = {
   [sepolia.id]: '0xB3A6CcC60E621857124596Ee690eef2175547B24',
+  [base.id]: '0x3F198BfE7F5CAc7d8825e008e9122e22E143C8F7',
 } as const satisfies Record<number, `0x${string}`>
 
 // Block the registry was deployed at. Used by the verify flow as the
@@ -10,6 +11,7 @@ export const commitRegistryAddress = {
 // this value is part of that migration.
 export const commitRegistryDeployBlock = {
   [sepolia.id]: BigInt(10683201),
+  [base.id]: BigInt(44889582),
 } as const satisfies Record<number, bigint>
 
 export const commitRegistryAbi = [
