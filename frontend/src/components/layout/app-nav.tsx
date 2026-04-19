@@ -28,10 +28,10 @@ export function AppNav() {
   return (
     <nav
       aria-label="Primary"
-      className="sticky top-14 z-10 bg-background border-b border-nav-border"
+      className="sticky top-16 z-10 bg-background border-b border-nav-border"
     >
       <div className="max-w-6xl mx-auto px-6">
-        <ul className="flex items-stretch h-10 gap-6">
+        <ul className="flex items-stretch h-12 gap-8">
           {tabs.map((tab) => {
             const active = isActive(pathname, tab.href)
             return (
@@ -40,7 +40,7 @@ export function AppNav() {
                   href={tab.href}
                   aria-current={active ? "page" : undefined}
                   className={
-                    "inline-flex items-center text-[13px] tracking-tight transition-colors " +
+                    "inline-flex items-center text-[15px] tracking-tight transition-colors " +
                     (active
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground/80")
@@ -51,7 +51,7 @@ export function AppNav() {
                 {active && (
                   <span
                     aria-hidden
-                    className="absolute inset-x-0 bottom-0 h-px bg-foreground"
+                    className="absolute inset-x-0 bottom-0 h-0.5 bg-foreground"
                   />
                 )}
               </li>

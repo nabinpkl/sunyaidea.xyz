@@ -91,17 +91,17 @@ export function PayloadInput({ payload, onPayload, disabled }: PayloadInputProps
       </div>
 
       {mode === "text" ? (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <textarea
             value={text}
             onChange={(e) => onTextChange(e.target.value)}
             disabled={disabled}
-            rows={6}
+            rows={7}
             placeholder="Type or paste the idea you want to commit… e.g A new social media platform where you can only follow 10 people."
             spellCheck={false}
-            className="px-3 py-2 text-[13px] bg-transparent border border-border rounded-sm outline-none focus:border-foreground/40 transition-colors resize-y min-h-28 disabled:opacity-50"
+            className="px-4 py-3 text-[15px] bg-transparent border border-border rounded-sm outline-none focus:border-foreground/40 transition-colors resize-y min-h-40 disabled:opacity-50 leading-relaxed"
           />
-          <div className="text-[10px] text-muted-foreground/70 font-mono tracking-wide">
+          <div className="text-[11px] text-muted-foreground/70 font-mono tracking-wide">
             hashed locally · never uploaded
           </div>
         </div>
@@ -128,7 +128,7 @@ function ModeTab({
       onClick={onClick}
       disabled={disabled}
       className={
-        "h-7 px-3 text-[11px] font-mono tracking-wide transition-colors disabled:opacity-40 disabled:cursor-not-allowed " +
+        "h-8 px-4 text-[12px] font-mono tracking-wide transition-colors disabled:opacity-40 disabled:cursor-not-allowed " +
         (active
           ? "bg-foreground text-background"
           : "text-muted-foreground hover:text-foreground")

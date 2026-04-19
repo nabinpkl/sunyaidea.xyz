@@ -259,7 +259,7 @@ export function CommitStage({ address, chainId }: CommitStageProps) {
           <button
             onClick={onCommit}
             disabled={busy}
-            className="h-9 px-4 rounded-sm bg-foreground text-background text-[13px] font-medium hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-10 px-5 rounded-sm bg-foreground text-background text-[14px] font-medium hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {isSigning
               ? "Sign in your wallet…"
@@ -267,10 +267,10 @@ export function CommitStage({ address, chainId }: CommitStageProps) {
                 ? "Submitting…"
                 : isConfirming
                   ? "Confirming…"
-                  : "Commit to blockchain"}
+                  : `Commit to ${networkName}`}
           </button>
           {error && (
-            <span className="text-[12px] text-destructive">{error}</span>
+            <span className="text-[13px] text-destructive">{error}</span>
           )}
         </div>
       )}

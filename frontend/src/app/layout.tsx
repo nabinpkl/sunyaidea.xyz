@@ -55,7 +55,10 @@ export default async function RootLayout({
           <Web3Provider initialState={initialState}>
             <TopBar />
             <AppNav />
-            <ScrollArea className="flex-1">
+            {/* min-h-0 is load-bearing: without it, flex items default to
+                min-height: auto and grow to their content height, leaving
+                the ScrollArea with no bounded viewport to scroll inside. */}
+            <ScrollArea className="flex-1 min-h-0">
               <main className="max-w-6xl mx-auto px-6">
                 {children}
               </main>

@@ -15,17 +15,17 @@ export function ThemeToggle() {
 
   const icon =
     theme === "light" ? (
-      <Sun className="size-4" />
+      <Sun className="size-5" />
     ) : theme === "dark" ? (
-      <Moon className="size-4" />
+      <Moon className="size-5" />
     ) : (
-      <Monitor className="size-4" />
+      <Monitor className="size-5" />
     )
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Toggle theme">
+        <Button variant="ghost" size="icon-lg" aria-label="Toggle theme">
           {icon}
         </Button>
       </DropdownMenuTrigger>

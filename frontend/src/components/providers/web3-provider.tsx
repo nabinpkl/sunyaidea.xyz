@@ -3,7 +3,13 @@
 import { createAppKit } from '@reown/appkit/react'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { wagmiAdapter, wagmiConfig, projectId, networks } from '@/lib/web3-config'
+import {
+  wagmiAdapter,
+  wagmiConfig,
+  projectId,
+  networks,
+  defaultNetwork,
+} from '@/lib/web3-config'
 import type { State } from 'wagmi'
 
 const queryClient = new QueryClient()
@@ -12,6 +18,7 @@ createAppKit({
   adapters: [wagmiAdapter],
   projectId,
   networks,
+  defaultNetwork,
   features: {
     analytics: false,
     swaps: false,

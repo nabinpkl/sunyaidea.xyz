@@ -46,8 +46,8 @@ export function ProofList({ address, chainId }: ProofListProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-[15px] font-medium tracking-tight">
-        My commits
+      <h2 className="text-[18px] font-medium tracking-tight">
+        My committed ideas on {networkName}
       </h2>
 
       {q.isLoading && (
@@ -76,7 +76,7 @@ export function ProofList({ address, chainId }: ProofListProps) {
       )}
 
       {q.data && q.data.length === 0 && (
-        <div className="text-[13px] text-muted-foreground">
+        <div className="text-[15px] text-muted-foreground">
           Nothing committed yet from this address on {networkName}.
         </div>
       )}

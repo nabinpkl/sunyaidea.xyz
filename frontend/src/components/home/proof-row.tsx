@@ -1,12 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { AlertTriangle, Check, X } from "lucide-react"
+import { AlertTriangle, Check, X, ExternalLink } from "lucide-react"
 import type { Hex } from "viem"
 import type { CommitRecord } from "@/lib/query-commits"
 import { explorerTxUrl } from "@/lib/chains"
 import { PayloadInput, type Payload } from "../shared/payload-input"
-import { KvField } from "../shared/kv-field"
 
 interface ProofRowProps {
   record: CommitRecord
@@ -52,29 +51,49 @@ export function ProofRow({ record, duplicates }: ProofRowProps) {
     setCheck({ kind: "idle" })
   }
 
+  const shortTx = `${record.txHash.slice(0, 6)}…${record.txHash.slice(-4)}`
+
   return (
-    <div className="flex flex-col gap-3 py-4 border-b border-border last:border-b-0">
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
-        <KvField label="payload hash" value={record.payloadHash} />
-        <KvField label="block" value={record.blockNumber.toString()} />
-        <KvField label="timestamp" value={formatTs(record.blockTimestamp)} />
-        {tsMismatch && (
-          <KvField
-            label="event ts (mismatch!)"
-            value={formatTs(record.eventTimestamp)}
-          />
-        )}
-        <KvField
-          label="tx"
-          value={record.txHash}
+    <div className="flex flex-col gap-3 py-5 border-b border-border last:border-b-0">
+      {/* Hash is the headline of the row. Full width, mono, foreground,
+          truncated so long hashes don't break the layout on narrow screens. */}
+      <div className="min-w-0">
+        <span
+          className="block font-mono text-[14px] text-foreground truncate"
+          title={record.payloadHash}
+        >
+          {record.payloadHash}
+        </span>
+      </div>
+
+      {/* Metadata byline. All the surrounding context in one muted line. */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground font-mono">
+        <span>block {record.blockNumber.toString()}</span>
+        <span className="text-muted-foreground/40">·</span>
+        <span>{formatTs(record.blockTimestamp)}</span>
+        <span className="text-muted-foreground/40">·</span>
+        <a
           href={explorerTxUrl(record.chainId, record.txHash)}
-        />
-      </dl>
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+        >
+          tx {shortTx}
+          <ExternalLink className="size-3" />
+        </a>
+        {duplicates > 0 && (
+          <>
+            <span className="text-muted-foreground/40">·</span>
+            <span>re-broadcast {duplicates}×</span>
+          </>
+        )}
+      </div>
 
       {tsMismatch && (
-        <div className="text-[11px] text-destructive flex items-center gap-1.5">
-          <AlertTriangle className="size-3" />
-          Event timestamp does not match the block it was emitted in.
+        <div className="text-[12px] text-destructive flex items-center gap-1.5">
+          <AlertTriangle className="size-3.5" />
+          Event timestamp ({formatTs(record.eventTimestamp)}) does not match
+          the block it was emitted in.
         </div>
       )}
 
@@ -82,38 +101,33 @@ export function ProofRow({ record, duplicates }: ProofRowProps) {
         {!open ? (
           <button
             onClick={() => setOpen(true)}
-            className="text-[12px] text-foreground/70 hover:text-foreground underline underline-offset-4"
+            className="text-[13px] text-foreground/80 hover:text-foreground underline underline-offset-4 decoration-foreground/20"
           >
-            Verify
+            Verify this commit
           </button>
         ) : (
           <button
             onClick={closeVerify}
-            className="text-[12px] text-foreground/70 hover:text-foreground underline underline-offset-4"
+            className="text-[13px] text-foreground/70 hover:text-foreground underline underline-offset-4 decoration-foreground/20"
           >
             Close
           </button>
         )}
-        {duplicates > 0 && (
-          <span className="text-[11px] text-muted-foreground">
-            re-broadcast {duplicates}×
-          </span>
-        )}
       </div>
 
       {open && (
-        <div className="flex flex-col gap-3 pt-1">
+        <div className="flex flex-col gap-3 pt-2">
           <PayloadInput payload={payload} onPayload={onPayload} />
           {check.kind === "match" && (
-            <div className="flex items-center gap-2 text-[12px] text-foreground">
-              <Check className="size-3.5" />
+            <div className="flex items-center gap-2 text-[13px] text-foreground">
+              <Check className="size-4" />
               Matches this commit.
             </div>
           )}
           {check.kind === "mismatch" && (
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-2 text-[12px] text-destructive">
-                <X className="size-3.5" />
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-[13px] text-destructive">
+                <X className="size-4" />
                 This does not hash to the committed payload.
               </div>
               <div className="flex items-baseline gap-3 text-[11px] min-w-0">
