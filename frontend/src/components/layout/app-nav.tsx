@@ -11,6 +11,7 @@ interface Tab {
 const tabs: Tab[] = [
   { label: "My ideas", href: "/" },
   { label: "Verify", href: "/verify" },
+  { label: "How it works", href: "/how-it-works" },
 ]
 
 function isActive(pathname: string, href: string) {

@@ -2,11 +2,18 @@
 
 import { Check, AlertTriangle } from "lucide-react"
 import type { CommitRecord } from "@/lib/query-commits"
+import {
+  chainShortName,
+  explorerAddressUrl,
+  explorerTxUrl,
+  type SupportedChainId,
+} from "@/lib/chains"
 import { KvField } from "../shared/kv-field"
 
 interface VerifyResultProps {
   payloadHash: `0x${string}`
   matches: CommitRecord[]
+  chainId: SupportedChainId
   identityFilter?: `0x${string}` | null
 }
 
@@ -17,29 +24,32 @@ function formatTs(ts: bigint) {
   )
 }
 
-/// Renders the result of a verify query. Three shapes:
+/// Renders the result of a verify query scoped to one chain. Three shapes:
 ///   - zero matches: affirmative "not found" (honest negative answer).
 ///   - one match: single commit, displayed like the CommitReceipt.
 ///   - many matches: the earliest is canonical per the contract; later ones
 ///     are noise (replays of the same signed digest). We show them all,
-///     earliest first, and label the first one "earliest  canonical".
+///     earliest first, and label the first one "earliest, canonical".
 export function VerifyResult({
   payloadHash,
   matches,
+  chainId,
   identityFilter,
 }: VerifyResultProps) {
+  const networkName = chainShortName(chainId)
+
   if (matches.length === 0) {
     return (
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2 text-[12px] text-foreground">
           <AlertTriangle className="size-3.5" />
-          No commit of this file on Sepolia
+          No commit of this file on {networkName}
           {identityFilter ? " by this address" : ""}.
         </div>
         <div className="text-[11px] text-muted-foreground leading-relaxed">
-          The file was hashed locally and the chain was queried directly.
+          The file was hashed locally and {networkName} was queried directly.
           Nothing was uploaded. If you expected a match, check that you&apos;re
-          using the exact same file byte-for-byte  any change produces a
+          using the exact same file byte-for-byte. Any change produces a
           different hash.
         </div>
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px] pt-2">
@@ -57,8 +67,8 @@ export function VerifyResult({
       <div className="flex items-center gap-2 text-[12px] text-foreground">
         <Check className="size-3.5" />
         {matches.length === 1
-          ? "1 commit of this file found on Sepolia."
-          : `${matches.length} commits of this file found on Sepolia.`}
+          ? `1 commit of this file found on ${networkName}.`
+          : `${matches.length} commits of this file found on ${networkName}.`}
       </div>
 
       <div className="flex flex-col gap-5">
@@ -93,14 +103,14 @@ function MatchRow({
     <div className="flex flex-col gap-3">
       {canonical && (
         <div className="text-[11px] text-muted-foreground font-mono tracking-wide">
-          earliest  canonical
+          earliest, canonical
         </div>
       )}
       <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
         <KvField
           label="identity"
           value={record.identity}
-          href={`https://sepolia.etherscan.io/address/${record.identity}`}
+          href={explorerAddressUrl(record.chainId, record.identity)}
         />
         <KvField label="payload hash" value={record.payloadHash} />
         <KvField label="block" value={record.blockNumber.toString()} />
@@ -114,7 +124,7 @@ function MatchRow({
         <KvField
           label="tx"
           value={record.txHash}
-          href={`https://sepolia.etherscan.io/tx/${record.txHash}`}
+          href={explorerTxUrl(record.chainId, record.txHash)}
         />
       </dl>
       {tsMismatch && (

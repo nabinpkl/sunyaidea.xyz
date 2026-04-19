@@ -17,7 +17,7 @@ interface PayloadInputProps {
 }
 
 /// Two-mode payload entry: a textarea for plaintext, or a file drop.
-/// Both paths produce a keccak256 of the raw bytes — the contract cannot
+/// Both paths produce a keccak256 of the raw bytes. The contract cannot
 /// tell which mode produced the hash, and verification uses the same keccak
 /// over the same bytes regardless of how the user re-entered the payload.
 export function PayloadInput({ payload, onPayload, disabled }: PayloadInputProps) {

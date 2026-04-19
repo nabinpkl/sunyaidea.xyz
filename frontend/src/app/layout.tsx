@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Roboto } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { headers } from "next/headers";
 import { cookieToInitialState } from "wagmi";
@@ -15,10 +15,13 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const roboto = Roboto({
-  variable: "--font-roboto",
+// Inter is the primary UI font. Its larger x-height and rounded terminals
+// hold up better on dark backgrounds than Roboto, which rendered thin and
+// washed out in our dark theme.
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -41,7 +44,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${roboto.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${inter.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

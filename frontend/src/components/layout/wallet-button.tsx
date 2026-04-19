@@ -3,7 +3,7 @@
 import { useAppKit, useAppKitAccount, useAppKitNetwork, useDisconnect } from '@reown/appkit/react'
 import { Wallet, Copy, LogOut, Check } from 'lucide-react'
 import { useState } from 'react'
-import { sepolia } from '@reown/appkit/networks'
+import { sepolia, base } from '@reown/appkit/networks'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-const NETWORKS = [sepolia]
+const NETWORKS = [sepolia, base]
 
 export function WalletButton() {
   const { open } = useAppKit()
@@ -28,13 +28,24 @@ export function WalletButton() {
     setTimeout(() => setCopied(false), 1500)
   }
 
+  const activeNetwork = NETWORKS.find(n => n.id === chainId)
+
   if (isConnected && address) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="ml-1 flex items-center gap-2 px-3 h-8 rounded-sm text-[12px] text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors font-mono tracking-tight outline-none">
-            <Wallet className="size-3.5 shrink-0" />
-            <span className="hidden sm:block">{address.slice(0, 6)}…{address.slice(-4)}</span>
+          <button className="ml-1 flex items-center h-8 rounded-sm text-[12px] text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors font-mono tracking-tight outline-none">
+            {activeNetwork && (
+              <span className="hidden sm:flex items-center gap-1.5 pl-2.5 pr-2 h-full text-muted-foreground">
+                <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
+                <span className="lowercase">{activeNetwork.name}</span>
+              </span>
+            )}
+            <span className="hidden sm:block h-3.5 w-px bg-foreground/10" />
+            <span className="flex items-center gap-2 px-2.5 h-full">
+              <Wallet className="size-3.5 shrink-0" />
+              <span className="hidden sm:block">{address.slice(0, 6)}…{address.slice(-4)}</span>
+            </span>
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">

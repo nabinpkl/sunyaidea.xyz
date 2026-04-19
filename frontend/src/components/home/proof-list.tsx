@@ -1,11 +1,17 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { findCommits, type CommitRecord } from "@/lib/query-commits"
+import { findCommitsOnChain, type CommitRecord } from "@/lib/query-commits"
 import { ProofRow } from "./proof-row"
+import {
+  chainShortName,
+  isSupportedChainId,
+  type SupportedChainId,
+} from "@/lib/chains"
 
 interface ProofListProps {
   address: `0x${string}`
+  chainId: number
 }
 
 interface DedupedRecord {
@@ -26,15 +32,21 @@ function dedupe(records: CommitRecord[]): DedupedRecord[] {
   return [...byHash.values()]
 }
 
-export function ProofList({ address }: ProofListProps) {
+export function ProofList({ address, chainId }: ProofListProps) {
+  const supported = isSupportedChainId(chainId)
+  const activeChainId = supported ? (chainId as SupportedChainId) : null
+  const networkName = activeChainId ? chainShortName(activeChainId) : ""
+
   const q = useQuery({
-    queryKey: ["commits", "by-identity", address],
-    queryFn: () => findCommits({ identity: address }),
+    queryKey: ["commits", "by-identity", activeChainId, address],
+    queryFn: () =>
+      findCommitsOnChain({ chainId: activeChainId!, identity: address }),
+    enabled: !!activeChainId,
   })
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-[13px] font-medium tracking-tight">
+      <h2 className="text-[15px] font-medium tracking-tight">
         My commits
       </h2>
 
@@ -52,7 +64,7 @@ export function ProofList({ address }: ProofListProps) {
       {q.isError && (
         <div className="flex items-center justify-between gap-4 px-4 py-3 border border-border rounded-sm bg-muted/30">
           <span className="text-[12px] text-muted-foreground">
-            Couldn&apos;t reach Sepolia.
+            Couldn&apos;t reach {networkName}.
           </span>
           <button
             onClick={() => q.refetch()}
@@ -64,8 +76,8 @@ export function ProofList({ address }: ProofListProps) {
       )}
 
       {q.data && q.data.length === 0 && (
-        <div className="text-[12px] text-muted-foreground">
-          Nothing committed yet from this address.
+        <div className="text-[13px] text-muted-foreground">
+          Nothing committed yet from this address on {networkName}.
         </div>
       )}
 

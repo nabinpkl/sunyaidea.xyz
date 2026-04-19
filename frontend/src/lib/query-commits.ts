@@ -1,13 +1,16 @@
 import { getAbiItem, type Address, type Hex } from 'viem'
-import { sepolia } from '@reown/appkit/networks'
 import {
   commitRegistryAbi,
   commitRegistryAddress,
   commitRegistryDeployBlock,
 } from './contracts'
-import { sepoliaReadClient } from './read-client'
+import { getReadClient } from './read-client'
+import { type SupportedChainId } from './chains'
 
 export interface CommitRecord {
+  /// The chain this commit was found on. Needed so downstream UI can link to
+  /// the correct block explorer and render chain-aware copy.
+  chainId: SupportedChainId
   identity: Address
   payloadHash: Hex
   /// Timestamp emitted by the contract (block.timestamp at commit time).
@@ -27,24 +30,25 @@ const committedEvent = getAbiItem({
   name: 'Committed',
 })
 
-/// Query Sepolia for on-chain commits. Either or both filters may be
-/// provided; at least one is required (no unscoped global scan  the
-/// event log is public but paying to pull it all over http is pointless
-/// and the use cases in this app never need it).
+/// Query a single supported chain for on-chain commits. Either or both
+/// filters may be provided; at least one is required (no unscoped global
+/// scan, since the event log is public but paying to pull it all over http
+/// is pointless and the use cases in this app never need it).
 ///
-/// Uses the indexed-topic filter on `eth_getLogs`  no indexer, no server.
+/// Uses the indexed-topic filter on `eth_getLogs`. No indexer, no server.
 /// Results are returned earliest-first, which matches the contract's own
 /// guidance: "the first Committed event for a given (identity, payloadHash)
 /// pair is the canonical record."
-export async function findCommits(params: {
+export async function findCommitsOnChain(params: {
+  chainId: SupportedChainId
   payloadHash?: Hex
   identity?: Address
 }): Promise<CommitRecord[]> {
-  const { payloadHash, identity } = params
+  const { chainId, payloadHash, identity } = params
   if (!payloadHash && !identity) {
     throw new Error('findCommits requires at least one of identity or payloadHash')
   }
-  const client = sepoliaReadClient
+  const client = getReadClient(chainId)
 
   const args =
     identity && payloadHash
@@ -54,10 +58,10 @@ export async function findCommits(params: {
         : { payloadHash: payloadHash! }
 
   const logs = await client.getLogs({
-    address: commitRegistryAddress[sepolia.id],
+    address: commitRegistryAddress[chainId],
     event: committedEvent,
     args,
-    fromBlock: commitRegistryDeployBlock[sepolia.id],
+    fromBlock: commitRegistryDeployBlock[chainId],
     toBlock: 'latest',
   })
 
@@ -82,6 +86,7 @@ export async function findCommits(params: {
       throw new Error('getLogs returned an undecodable Committed event')
     }
     return {
+      chainId,
       identity: loggedIdentity,
       payloadHash: loggedHash,
       eventTimestamp: timestamp,
@@ -101,3 +106,4 @@ export async function findCommits(params: {
 
   return records
 }
+

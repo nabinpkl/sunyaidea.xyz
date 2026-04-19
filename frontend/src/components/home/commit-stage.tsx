@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { Check } from "lucide-react"
-import { sepolia } from "@reown/appkit/networks"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   useSignTypedData,
@@ -17,13 +16,20 @@ import {
   COMMIT_TITLE,
   COMMIT_DESCRIPTION,
 } from "@/lib/contracts"
-import { findCommits } from "@/lib/query-commits"
+import { findCommitsOnChain } from "@/lib/query-commits"
 import { verifyCommitInReceipt } from "@/lib/verify-commit"
+import {
+  chainShortName,
+  explorerTxUrl,
+  isSupportedChainId,
+  type SupportedChainId,
+} from "@/lib/chains"
 import { PayloadInput, type Payload } from "../shared/payload-input"
 import { KvField } from "../shared/kv-field"
 
 interface CommitStageProps {
   address: `0x${string}`
+  chainId: number
 }
 
 function formatTs(ts: bigint) {
@@ -34,15 +40,22 @@ function formatTs(ts: bigint) {
 }
 
 /// Staging area at the top of the owner home. Drop-then-decide: a file is
-/// hashed locally, cross-checked against the user's own commits, and the
-/// panel resolves into either a "you already committed this" readout or a
-/// Commit button. No auto-trigger  the user sits with the hash before acting.
-export function CommitStage({ address }: CommitStageProps) {
+/// hashed locally, cross-checked against the user's own commits on the
+/// connected chain, and the panel resolves into either a "you already
+/// committed this" readout or a Commit button. No auto-trigger, so the user
+/// sits with the hash before acting.
+export function CommitStage({ address, chainId }: CommitStageProps) {
   const qc = useQueryClient()
   const [payload, setPayload] = useState<Payload | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const payloadHash = payload?.hash ?? null
+  // Gate-level check upstream (home-panel) already prevents this component
+  // from mounting on an unsupported chain, but narrow the type here so the
+  // contract/explorer lookups below are type-safe.
+  const supported = isSupportedChainId(chainId)
+  const activeChainId = supported ? (chainId as SupportedChainId) : null
+  const networkName = activeChainId ? chainShortName(activeChainId) : ""
 
   const { signTypedDataAsync, isPending: isSigning } = useSignTypedData()
   const {
@@ -53,14 +66,18 @@ export function CommitStage({ address }: CommitStageProps) {
   } = useWriteContract()
   const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({
     hash: txHash,
-    chainId: sepolia.id,
+    chainId: activeChainId ?? undefined,
   })
 
   const crossCheck = useQuery({
-    queryKey: ["commits", "by-identity-and-hash", address, payloadHash],
+    queryKey: ["commits", "by-identity-and-hash", activeChainId, address, payloadHash],
     queryFn: () =>
-      findCommits({ identity: address, payloadHash: payloadHash! }),
-    enabled: !!payloadHash && !txHash,
+      findCommitsOnChain({
+        chainId: activeChainId!,
+        identity: address,
+        payloadHash: payloadHash!,
+      }),
+    enabled: !!payloadHash && !!activeChainId && !txHash,
   })
 
   const handlePayload = (p: Payload | null) => {
@@ -76,13 +93,13 @@ export function CommitStage({ address }: CommitStageProps) {
 
   const onCommit = async () => {
     setError(null)
-    if (!payloadHash) return
+    if (!payloadHash || !activeChainId) return
     try {
       const signature = await signTypedDataAsync({
         domain: {
           ...commitTypedDataDomain,
-          chainId: sepolia.id,
-          verifyingContract: commitRegistryAddress[sepolia.id],
+          chainId: activeChainId,
+          verifyingContract: commitRegistryAddress[activeChainId],
         },
         types: commitTypedDataTypes,
         primaryType: "Commit",
@@ -95,10 +112,10 @@ export function CommitStage({ address }: CommitStageProps) {
       })
       await writeContractAsync({
         abi: commitRegistryAbi,
-        address: commitRegistryAddress[sepolia.id],
+        address: commitRegistryAddress[activeChainId],
         functionName: "commit",
         args: [address, payloadHash, signature],
-        chainId: sepolia.id,
+        chainId: activeChainId,
       })
     } catch (e: unknown) {
       const err = e as { shortMessage?: string; message?: string }
@@ -107,10 +124,10 @@ export function CommitStage({ address }: CommitStageProps) {
   }
 
   const verification =
-    receipt && payloadHash
+    receipt && payloadHash && activeChainId
       ? verifyCommitInReceipt({
           receipt,
-          registry: commitRegistryAddress[sepolia.id],
+          registry: commitRegistryAddress[activeChainId],
           identity: address,
           payloadHash,
         })
@@ -120,21 +137,21 @@ export function CommitStage({ address }: CommitStageProps) {
 
   useEffect(() => {
     if (!committed) return
-    // Commit landed  refresh the list below so the new row appears.
+    // Commit landed. Refresh the list below so the new row appears.
     qc.invalidateQueries({
-      queryKey: ["commits", "by-identity", address],
+      queryKey: ["commits", "by-identity", activeChainId, address],
     })
-  }, [committed, qc, address])
+  }, [committed, qc, address, activeChainId])
 
   const existingMatch = crossCheck.data?.[0]
   const busy = isSigning || isBroadcasting || isConfirming
 
-  if (committed) {
+  if (committed && activeChainId) {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2 text-[12px] text-foreground">
           <Check className="size-3.5" />
-          Committed to Sepolia · event verified
+          Committed to {networkName} · event verified
         </div>
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
           <KvField label="payload hash" value={payloadHash!} />
@@ -146,7 +163,7 @@ export function CommitStage({ address }: CommitStageProps) {
           <KvField
             label="tx"
             value={txHash}
-            href={`https://sepolia.etherscan.io/tx/${txHash}`}
+            href={explorerTxUrl(activeChainId, txHash)}
           />
         </dl>
         <button
@@ -159,7 +176,7 @@ export function CommitStage({ address }: CommitStageProps) {
     )
   }
 
-  if (verification && !verification.ok) {
+  if (verification && !verification.ok && activeChainId && txHash) {
     return (
       <div className="flex flex-col gap-3">
         <div className="text-[13px] text-destructive">
@@ -168,7 +185,7 @@ export function CommitStage({ address }: CommitStageProps) {
         <div className="text-[12px] text-muted-foreground">
           Reason: {verification.reason}. tx:{" "}
           <a
-            href={`https://sepolia.etherscan.io/tx/${txHash}`}
+            href={explorerTxUrl(activeChainId, txHash)}
             target="_blank"
             rel="noreferrer"
             className="font-mono underline underline-offset-4"
@@ -207,11 +224,11 @@ export function CommitStage({ address }: CommitStageProps) {
         </div>
       )}
 
-      {payloadHash && !crossCheck.isFetching && existingMatch && (
+      {payloadHash && !crossCheck.isFetching && existingMatch && activeChainId && (
         <div className="flex flex-col gap-3 p-4 border border-border rounded-sm bg-muted/30">
           <div className="flex items-center gap-2 text-[12px] text-foreground">
             <Check className="size-3.5" />
-            You already committed this.
+            You already committed this on {networkName}.
           </div>
           <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
             <KvField
@@ -225,7 +242,7 @@ export function CommitStage({ address }: CommitStageProps) {
             <KvField
               label="tx"
               value={existingMatch.txHash}
-              href={`https://sepolia.etherscan.io/tx/${existingMatch.txHash}`}
+              href={explorerTxUrl(activeChainId, existingMatch.txHash)}
             />
           </dl>
           <button

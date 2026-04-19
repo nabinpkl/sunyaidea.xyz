@@ -4,6 +4,7 @@ import { useState } from "react"
 import { AlertTriangle, Check, X } from "lucide-react"
 import type { Hex } from "viem"
 import type { CommitRecord } from "@/lib/query-commits"
+import { explorerTxUrl } from "@/lib/chains"
 import { PayloadInput, type Payload } from "../shared/payload-input"
 import { KvField } from "../shared/kv-field"
 
@@ -66,7 +67,7 @@ export function ProofRow({ record, duplicates }: ProofRowProps) {
         <KvField
           label="tx"
           value={record.txHash}
-          href={`https://sepolia.etherscan.io/tx/${record.txHash}`}
+          href={explorerTxUrl(record.chainId, record.txHash)}
         />
       </dl>
 
