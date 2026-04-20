@@ -4,6 +4,7 @@ import { useAccount, useChainId, useSwitchChain } from "wagmi"
 import { useAppKit } from "@reown/appkit/react"
 import { CommitStage } from "./commit-stage"
 import { ProofList } from "./proof-list"
+import { OnboardingSteps } from "./onboarding-steps"
 import {
   isSupportedChainId,
   supportedChains,
@@ -29,7 +30,7 @@ export function HomePanel() {
   const fallbackChain = supportedChains[0]
 
   return (
-    <section className="flex flex-col gap-12 py-12 max-w-3xl mx-auto">
+    <section className="flex flex-col gap-12 py-12 max-w-5xl mx-auto px-4 md:px-0">
       <header className="flex flex-col gap-3">
         <h1 className="text-[30px] font-medium tracking-tight">My ideas</h1>
         <p className="text-[16px] text-foreground/90 leading-relaxed">
@@ -40,61 +41,7 @@ export function HomePanel() {
       </header>
 
       {!isConnected ? (
-        <div className="flex flex-col gap-8">
-          <ol className="flex flex-col gap-5 text-[14px] leading-relaxed">
-            <li className="flex gap-4">
-              <span className="font-mono text-[12px] text-muted-foreground pt-0.5 shrink-0 w-6">
-                01
-              </span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-foreground">Connect your own wallet</span>
-                <span className="text-foreground/80">
-                  Any EVM wallet like metamask  works. Sunya never holds your keys and runs no
-                  server.
-                </span>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <span className="font-mono text-[12px] text-muted-foreground pt-0.5 shrink-0 w-6">
-                02
-              </span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-foreground">
-                  Type or drop what you want to commit
-                </span>
-                <span className="text-foreground/80">
-                  The content is hashed in your browser. The
-                  plaintext never leaves your device.
-                </span>
-              </div>
-            </li>
-            <li className="flex gap-4">
-              <span className="font-mono text-[12px] text-muted-foreground pt-0.5 shrink-0 w-6">
-                03
-              </span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-foreground">Sign and submit yourself</span>
-                <span className="text-foreground/80">
-                  You sign and pay gas. Only the hash goes on chain. Anyone can
-                  verify it later; no one can forge or backdate it.
-                </span>
-              </div>
-            </li>
-          </ol>
-
-          <button
-            onClick={() => open()}
-            className="self-start h-10 px-5 rounded-sm bg-foreground text-background text-[14px] font-medium hover:opacity-90 transition-opacity"
-          >
-            Connect wallet to start
-          </button>
-
-          <p className="text-[12px] text-foreground/70 leading-relaxed max-w-xl">
-            Tip: commit before you share. Anyone with your idea can commit its
-            hash. Sunya secures what you commit the moment you commit it, not
-            what you&apos;ve already disclosed elsewhere.
-          </p>
-        </div>
+        <OnboardingSteps onConnect={open} />
       ) : onWrongChain ? (
         <div className="flex items-center justify-between gap-4 px-5 h-14 border border-border rounded-sm bg-muted/30">
           <span className="text-[14px] text-muted-foreground">
