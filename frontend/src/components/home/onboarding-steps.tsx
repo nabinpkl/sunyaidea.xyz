@@ -61,7 +61,7 @@ const assurances = [
 
 export function OnboardingSteps({ onConnect }: { onConnect: () => void }) {
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col gap-6">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_352px]">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -79,7 +79,7 @@ export function OnboardingSteps({ onConnect }: { onConnect: () => void }) {
 
           <div
             aria-disabled="true"
-            className="flex min-h-[146px] cursor-not-allowed select-none flex-col border border-border bg-card/55 opacity-70"
+            className="flex min-h-[180px] cursor-not-allowed select-none flex-col border border-border bg-card/55 opacity-70"
           >
             <div className="flex-1 px-4 py-4 text-[13px] text-muted-foreground">
               Write or paste your idea here...
@@ -127,9 +127,9 @@ export function OnboardingSteps({ onConnect }: { onConnect: () => void }) {
 
       <div className="flex flex-col gap-5">
         <h2 className="text-[15px] font-semibold">Commit in 3 steps</h2>
-        <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-start">
+        <div className="grid border border-border bg-card/45 md:grid-cols-3">
           {steps.map((step, index) => (
-            <StepItem key={step.id} step={step} showArrow={index < steps.length - 1} />
+            <StepItem key={step.id} step={step} index={index} />
           ))}
         </div>
       </div>
@@ -173,36 +173,40 @@ export function OnboardingSteps({ onConnect }: { onConnect: () => void }) {
 
 function StepItem({
   step,
-  showArrow,
+  index,
 }: {
   step: (typeof steps)[number]
-  showArrow: boolean
+  index: number
 }) {
   const Icon = step.icon
 
   return (
-    <>
-      <div className="grid grid-cols-[28px_1fr] gap-x-4 gap-y-3">
-        <span className="flex size-6 items-center justify-center rounded-full bg-muted text-[12px] font-semibold text-muted-foreground">
+    <div
+      className={
+        "relative grid grid-cols-[52px_1fr] gap-x-5 px-7 py-7 " +
+        (index === 0 ? "" : "border-t border-border md:border-t-0")
+      }
+    >
+      {index > 0 && (
+        <span
+          aria-hidden
+          className="absolute left-0 top-7 hidden h-24 border-l border-border md:block"
+        />
+      )}
+      <div className="flex flex-col items-start gap-4">
+        <span className="flex size-8 items-center justify-center rounded-full bg-muted text-[12px] font-semibold text-muted-foreground">
           {step.id}
         </span>
-        <span />
-        <span className="flex size-6 items-center justify-center bg-muted text-muted-foreground">
+        <span className="flex size-10 items-center justify-center border border-border bg-background text-muted-foreground">
           <Icon />
         </span>
-        <div className="flex flex-col gap-2">
-          <h3 className="text-[13px] font-semibold">{step.title}</h3>
-          <p className="max-w-40 text-[11px] leading-5 text-muted-foreground">
-            {step.description}
-          </p>
-        </div>
       </div>
-      {showArrow && (
-        <div className="hidden items-center pt-[54px] text-muted-foreground md:flex">
-          <span className="h-px w-20 bg-border" />
-          <ArrowRight />
-        </div>
-      )}
-    </>
+      <div className="flex min-w-0 flex-col gap-3 pt-9">
+        <h3 className="text-[13px] font-semibold">{step.title}</h3>
+        <p className="max-w-[220px] text-[11px] leading-5 text-muted-foreground">
+          {step.description}
+        </p>
+      </div>
+    </div>
   )
 }
