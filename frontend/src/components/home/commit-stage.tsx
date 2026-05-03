@@ -1,7 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Check } from "lucide-react"
+import {
+  Check,
+  Hash,
+  KeyRound,
+  RadioTower,
+  RotateCcw,
+  type LucideIcon,
+} from "lucide-react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   useSignTypedData,
@@ -26,6 +33,9 @@ import {
 } from "@/lib/chains"
 import { PayloadInput, type Payload } from "../shared/payload-input"
 import { KvField } from "../shared/kv-field"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 
 interface CommitStageProps {
   address: `0x${string}`
@@ -48,6 +58,7 @@ export function CommitStage({ address, chainId }: CommitStageProps) {
   const qc = useQueryClient()
   const [payload, setPayload] = useState<Payload | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [inputNonce, setInputNonce] = useState(0)
 
   const payloadHash = payload?.hash ?? null
   // Gate-level check upstream (home-panel) already prevents this component
@@ -88,6 +99,7 @@ export function CommitStage({ address, chainId }: CommitStageProps) {
   const reset = () => {
     setPayload(null)
     setError(null)
+    setInputNonce((n) => n + 1)
     resetWrite()
   }
 
@@ -148,12 +160,12 @@ export function CommitStage({ address, chainId }: CommitStageProps) {
 
   if (committed && activeChainId) {
     return (
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2 text-[12px] text-foreground">
+      <div className="flex flex-col gap-5 border border-border bg-card/88 p-5 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center gap-2 text-[13px] font-medium text-foreground">
           <Check className="size-3.5" />
           Committed to {networkName} · event verified
         </div>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
+        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px] sm:grid-cols-[auto_1fr_auto_1fr]">
           <KvField label="payload hash" value={payloadHash!} />
           <KvField
             label="block"
@@ -166,12 +178,10 @@ export function CommitStage({ address, chainId }: CommitStageProps) {
             href={explorerTxUrl(activeChainId, txHash)}
           />
         </dl>
-        <button
-          onClick={reset}
-          className="self-start text-[12px] text-foreground/70 hover:text-foreground underline underline-offset-4 decoration-foreground/20"
-        >
+        <Button onClick={reset} variant="outline" size="sm" className="self-start">
+          <RotateCcw data-icon="inline-start" />
           Commit another
-        </button>
+        </Button>
       </div>
     )
   }
@@ -204,76 +214,143 @@ export function CommitStage({ address, chainId }: CommitStageProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <PayloadInput payload={payload} onPayload={handlePayload} disabled={busy} />
-
-      {payloadHash && (
-        <div className="flex items-baseline gap-3 text-[11px] min-w-0">
-          <span className="text-muted-foreground font-mono tracking-wide shrink-0">
-            keccak256
-          </span>
-          <span className="font-mono text-foreground/80 truncate">
-            {payloadHash}
-          </span>
-        </div>
-      )}
-
-      {payloadHash && crossCheck.isFetching && (
-        <div className="text-[12px] text-muted-foreground">
-          Checking if you&apos;ve committed this before…
-        </div>
-      )}
-
-      {payloadHash && !crossCheck.isFetching && existingMatch && activeChainId && (
-        <div className="flex flex-col gap-3 p-4 border border-border rounded-sm bg-muted/30">
-          <div className="flex items-center gap-2 text-[12px] text-foreground">
-            <Check className="size-3.5" />
-            You already committed this on {networkName}.
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="border border-border bg-card/90 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
+          <div className="flex flex-col gap-0.5">
+            <h2 className="text-[14px] font-medium">Your idea</h2>
+            <p className="text-[12px] text-muted-foreground">
+              Plaintext is hashed locally and stays with you.
+            </p>
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
-            <KvField
-              label="block"
-              value={existingMatch.blockNumber.toString()}
-            />
-            <KvField
-              label="timestamp"
-              value={formatTs(existingMatch.blockTimestamp)}
-            />
-            <KvField
-              label="tx"
-              value={existingMatch.txHash}
-              href={explorerTxUrl(activeChainId, existingMatch.txHash)}
-            />
-          </dl>
-          <button
-            onClick={reset}
-            className="self-start text-[12px] text-foreground/70 hover:text-foreground underline underline-offset-4"
-          >
-            Clear
-          </button>
+          <Badge variant="secondary">{networkName}</Badge>
         </div>
-      )}
 
-      {payloadHash && !crossCheck.isFetching && !existingMatch && (
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onCommit}
+        <div className="p-5">
+          <PayloadInput
+            key={inputNonce}
+            onPayload={handlePayload}
             disabled={busy}
-            className="h-10 px-5 rounded-sm bg-foreground text-background text-[14px] font-medium hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {isSigning
-              ? "Sign in your wallet…"
-              : isBroadcasting
-                ? "Submitting…"
-                : isConfirming
-                  ? "Confirming…"
-                  : `Commit to ${networkName}`}
-          </button>
-          {error && (
-            <span className="text-[13px] text-destructive">{error}</span>
+          />
+        </div>
+      </div>
+
+      <aside className="flex flex-col border border-border bg-background/72 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+          <span className="text-[14px] font-medium">Proof preview</span>
+          <Badge variant={payloadHash ? "default" : "outline"}>
+            {payloadHash ? "Ready" : "Waiting"}
+          </Badge>
+        </div>
+
+        <div className="flex flex-1 flex-col gap-5 p-5">
+          <div className="flex flex-col gap-3">
+            <ProofPreviewRow
+              icon={Hash}
+              label="Payload hash"
+              value={payloadHash ?? "Type or drop an idea to compute hash"}
+              active={!!payloadHash}
+            />
+            <ProofPreviewRow
+              icon={KeyRound}
+              label="Identity root"
+              value={address}
+              active
+            />
+            <ProofPreviewRow
+              icon={RadioTower}
+              label="Public record"
+              value={payloadHash ? "Signed event after wallet approval" : "No transaction yet"}
+              active={!!payloadHash}
+            />
+          </div>
+
+          <Separator />
+
+          {payloadHash && crossCheck.isFetching && (
+            <div className="text-[12px] text-muted-foreground">
+              Checking if you&apos;ve committed this before…
+            </div>
+          )}
+
+          {payloadHash && !crossCheck.isFetching && existingMatch && activeChainId && (
+            <div className="flex flex-col gap-3 border border-border bg-muted/35 p-4">
+              <div className="flex items-center gap-2 text-[12px] font-medium text-foreground">
+                <Check className="size-3.5" />
+                Already committed on {networkName}
+              </div>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[12px]">
+                <KvField
+                  label="block"
+                  value={existingMatch.blockNumber.toString()}
+                />
+                <KvField
+                  label="timestamp"
+                  value={formatTs(existingMatch.blockTimestamp)}
+                />
+                <KvField
+                  label="tx"
+                  value={existingMatch.txHash}
+                  href={explorerTxUrl(activeChainId, existingMatch.txHash)}
+                />
+              </dl>
+              <Button onClick={reset} variant="outline" size="sm" className="self-start">
+                Clear
+              </Button>
+            </div>
+          )}
+
+          {payloadHash && !crossCheck.isFetching && !existingMatch && (
+            <div className="mt-auto flex flex-col gap-3">
+              <Button onClick={onCommit} disabled={busy} size="lg" className="w-full">
+                {isSigning
+                  ? "Sign in your wallet…"
+                  : isBroadcasting
+                    ? "Submitting…"
+                    : isConfirming
+                      ? "Confirming…"
+                      : `Commit to ${networkName}`}
+              </Button>
+              {error && (
+                <span className="text-[13px] text-destructive">{error}</span>
+              )}
+            </div>
           )}
         </div>
-      )}
+      </aside>
+    </div>
+  )
+}
+
+function ProofPreviewRow({
+  icon: Icon,
+  label,
+  value,
+  active,
+}: {
+  icon: LucideIcon
+  label: string
+  value: string
+  active?: boolean
+}) {
+  return (
+    <div className="grid min-w-0 grid-cols-[28px_1fr] gap-3">
+      <span className="flex size-7 items-center justify-center border border-border bg-card text-muted-foreground">
+        <Icon />
+      </span>
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          {label}
+        </span>
+        <span
+          className={
+            "truncate font-mono text-[12px] " +
+            (active ? "text-foreground" : "text-muted-foreground")
+          }
+        >
+          {value}
+        </span>
+      </div>
     </div>
   )
 }

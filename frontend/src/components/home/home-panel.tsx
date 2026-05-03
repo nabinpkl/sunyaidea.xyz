@@ -5,6 +5,7 @@ import { useAppKit } from "@reown/appkit/react"
 import { CommitStage } from "./commit-stage"
 import { ProofList } from "./proof-list"
 import { OnboardingSteps } from "./onboarding-steps"
+import { Button } from "@/components/ui/button"
 import {
   isSupportedChainId,
   supportedChains,
@@ -30,34 +31,42 @@ export function HomePanel() {
   const fallbackChain = supportedChains[0]
 
   return (
-    <section className="flex flex-col gap-12 py-8 max-w-5xl mx-auto px-4 md:px-0">
-      <header className="flex flex-col gap-3">
-        <h1 className="text-[30px] font-medium tracking-tight">
-          {isConnected ? "My ideas" : "Commit an idea"}
-        </h1>
-        <p className="text-[16px] text-foreground/90 leading-relaxed">
-          {isConnected
-            ? "Type your idea here or drop a file. Its hash is signed by your key and written to the blockchain. The content itself never leaves your device."
-            : <>Have an Idea? Commit your idea <a href="https://www.techtarget.com/searchdatamanagement/definition/hashing" target="_blank" rel="noopener noreferrer" className="text-foreground underline underline-offset-4 decoration-foreground/30 hover:decoration-foreground transition-colors">hash</a> to a public blockchain under your own key. Timestamped, signed, impossible to backdate. If the idea is ever contested, you reveal the original and prove it matches.</>}
-        </p>
+    <section className="flex flex-col gap-7 py-8">
+      <header className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_310px] lg:items-end">
+        <div className="flex flex-col gap-4">
+          <h1 className="font-serif text-[34px] font-normal leading-none tracking-tight text-foreground sm:text-[38px]">
+            {isConnected ? "My ideas" : "Commit an idea"}
+          </h1>
+          <p className="max-w-[620px] text-[13px] leading-6 text-muted-foreground">
+            {isConnected
+              ? "Type your idea here or drop a file. Its hash is signed by your key and written to the blockchain. The content itself never leaves your device."
+              : "Hash your idea locally and commit only the hash to the blockchain. You keep the original. Anyone can verify."}
+          </p>
+        </div>
+        {!isConnected && (
+          <p className="hidden border-l border-border pl-6 text-[13px] leading-6 text-muted-foreground lg:block">
+            Commit before you share. Anyone who has the idea can commit the
+            same hash first.
+          </p>
+        )}
       </header>
 
       {!isConnected ? (
         <OnboardingSteps onConnect={open} />
       ) : onWrongChain ? (
-        <div className="flex items-center justify-between gap-4 px-5 h-14 border border-border rounded-sm bg-muted/30">
+        <div className="flex items-center justify-between gap-4 border border-border bg-card/88 px-5 py-4 shadow-sm backdrop-blur-sm">
           <span className="text-[14px] text-muted-foreground">
             Switch to a supported network to continue.
           </span>
-          <button
+          <Button
             onClick={() => switchChain({ chainId: fallbackChain.id as number })}
             disabled={isSwitching}
-            className="text-[14px] text-foreground hover:underline underline-offset-4 disabled:opacity-50"
+            variant="outline"
           >
             {isSwitching
               ? "Switching…"
               : `Switch to ${chainShortName(fallbackChain.id as number)}`}
-          </button>
+          </Button>
         </div>
       ) : (
         <>

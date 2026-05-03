@@ -167,7 +167,7 @@ export function VerifyPanel() {
             </div>
           )}
 
-          <PayloadInput payload={payload} onPayload={onPayload} disabled={busy} />
+          <PayloadInput onPayload={onPayload} disabled={busy} />
 
           {payloadHash && (
             <div className="flex items-baseline gap-3 text-[11px] min-w-0">

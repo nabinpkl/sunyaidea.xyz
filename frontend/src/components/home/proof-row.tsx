@@ -6,6 +6,7 @@ import type { Hex } from "viem"
 import type { CommitRecord } from "@/lib/query-commits"
 import { explorerTxUrl } from "@/lib/chains"
 import { PayloadInput, type Payload } from "../shared/payload-input"
+import { Button } from "@/components/ui/button"
 
 interface ProofRowProps {
   record: CommitRecord
@@ -30,13 +31,11 @@ function formatTs(ts: bigint) {
 /// still hold the bytes that produced the commit.
 export function ProofRow({ record, duplicates }: ProofRowProps) {
   const [open, setOpen] = useState(false)
-  const [payload, setPayload] = useState<Payload | null>(null)
   const [check, setCheck] = useState<Check>({ kind: "idle" })
 
   const tsMismatch = record.eventTimestamp !== record.blockTimestamp
 
   const onPayload = (p: Payload | null) => {
-    setPayload(p)
     if (!p) {
       setCheck({ kind: "idle" })
       return
@@ -47,14 +46,13 @@ export function ProofRow({ record, duplicates }: ProofRowProps) {
 
   const closeVerify = () => {
     setOpen(false)
-    setPayload(null)
     setCheck({ kind: "idle" })
   }
 
   const shortTx = `${record.txHash.slice(0, 6)}…${record.txHash.slice(-4)}`
 
   return (
-    <div className="flex flex-col gap-3 py-5 border-b border-border last:border-b-0">
+    <div className="flex flex-col gap-3 border-b border-border px-5 py-5 last:border-b-0">
       {/* Hash is the headline of the row. Full width, mono, foreground,
           truncated so long hashes don't break the layout on narrow screens. */}
       <div className="min-w-0">
@@ -99,25 +97,19 @@ export function ProofRow({ record, duplicates }: ProofRowProps) {
 
       <div className="flex items-center gap-4">
         {!open ? (
-          <button
-            onClick={() => setOpen(true)}
-            className="text-[13px] text-foreground/80 hover:text-foreground underline underline-offset-4 decoration-foreground/20"
-          >
+          <Button onClick={() => setOpen(true)} variant="outline" size="sm">
             Verify this commit
-          </button>
+          </Button>
         ) : (
-          <button
-            onClick={closeVerify}
-            className="text-[13px] text-foreground/70 hover:text-foreground underline underline-offset-4 decoration-foreground/20"
-          >
+          <Button onClick={closeVerify} variant="ghost" size="sm">
             Close
-          </button>
+          </Button>
         )}
       </div>
 
       {open && (
         <div className="flex flex-col gap-3 pt-2">
-          <PayloadInput payload={payload} onPayload={onPayload} />
+          <PayloadInput onPayload={onPayload} />
           {check.kind === "match" && (
             <div className="flex items-center gap-2 text-[13px] text-foreground">
               <Check className="size-4" />

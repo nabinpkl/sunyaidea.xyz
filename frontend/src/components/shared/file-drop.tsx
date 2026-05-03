@@ -15,7 +15,7 @@ export function FileDrop({ file, onFile, disabled }: FileDropProps) {
 
   if (file) {
     return (
-      <div className="flex items-center justify-between gap-3 px-4 h-12 border border-border rounded-sm bg-muted/40">
+      <div className="flex h-12 items-center justify-between gap-3 border border-border bg-muted/40 px-4">
         <div className="min-w-0 flex items-baseline gap-3">
           <span className="text-[13px] text-foreground truncate">{file.name}</span>
           <span className="text-[11px] font-mono text-muted-foreground shrink-0">
@@ -25,7 +25,7 @@ export function FileDrop({ file, onFile, disabled }: FileDropProps) {
         <button
           onClick={() => onFile(null)}
           disabled={disabled}
-          className="shrink-0 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="shrink-0 text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Remove file"
         >
           <X className="size-3.5" />
@@ -46,7 +46,7 @@ export function FileDrop({ file, onFile, disabled }: FileDropProps) {
         if (dropped) onFile(dropped)
       }}
       className={
-        "flex flex-col items-center justify-center gap-2 h-32 border border-dashed rounded-sm cursor-pointer transition-colors " +
+        "flex h-40 cursor-pointer flex-col items-center justify-center gap-2 border border-dashed bg-background/55 transition-colors " +
         (dragging
           ? "border-foreground/40 bg-foreground/[0.03]"
           : "border-border hover:border-foreground/30 hover:bg-foreground/[0.02]") +
@@ -67,7 +67,7 @@ export function FileDrop({ file, onFile, disabled }: FileDropProps) {
       <div className="text-[12px] text-muted-foreground">
         Drop a file here, or <span className="text-foreground">click to choose</span>
       </div>
-      <div className="text-[10px] text-muted-foreground/70 font-mono tracking-wide">
+      <div className="font-mono text-[10px] tracking-wide text-muted-foreground/70">
         hashed locally · never uploaded
       </div>
     </label>

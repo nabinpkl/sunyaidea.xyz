@@ -8,6 +8,7 @@ import {
   isSupportedChainId,
   type SupportedChainId,
 } from "@/lib/chains"
+import { Button } from "@/components/ui/button"
 
 interface ProofListProps {
   address: `0x${string}`
@@ -46,43 +47,47 @@ export function ProofList({ address, chainId }: ProofListProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-[18px] font-medium tracking-tight">
-        My committed ideas on {networkName}
-      </h2>
+      <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-[18px] font-medium tracking-tight">
+            My committed ideas
+          </h2>
+          <p className="text-[12px] text-muted-foreground">
+            Event log entries from {networkName}. Plaintext is not stored here.
+          </p>
+        </div>
+      </div>
 
       {q.isLoading && (
         <div className="flex flex-col gap-4">
           {[0, 1].map((i) => (
             <div
               key={i}
-              className="h-24 border border-border rounded-sm bg-muted/20 animate-pulse"
+              className="h-24 animate-pulse border border-border bg-muted/20"
             />
           ))}
         </div>
       )}
 
       {q.isError && (
-        <div className="flex items-center justify-between gap-4 px-4 py-3 border border-border rounded-sm bg-muted/30">
+        <div className="flex items-center justify-between gap-4 border border-border bg-card/80 px-4 py-3">
           <span className="text-[12px] text-muted-foreground">
             Couldn&apos;t reach {networkName}.
           </span>
-          <button
-            onClick={() => q.refetch()}
-            className="text-[12px] text-foreground hover:underline underline-offset-4"
-          >
+          <Button onClick={() => q.refetch()} variant="outline" size="sm">
             Retry
-          </button>
+          </Button>
         </div>
       )}
 
       {q.data && q.data.length === 0 && (
-        <div className="text-[15px] text-muted-foreground">
+        <div className="border border-border bg-card/70 px-5 py-8 text-[14px] text-muted-foreground">
           Nothing committed yet from this address on {networkName}.
         </div>
       )}
 
       {q.data && q.data.length > 0 && (
-        <div className="flex flex-col">
+        <div className="flex flex-col border border-border bg-card/70">
           {dedupe(q.data).map(({ record, duplicates }) => (
             <ProofRow
               key={`${record.txHash}-${record.logIndex}`}

@@ -6,7 +6,6 @@ import { cookieToInitialState } from "wagmi";
 import { wagmiConfig } from "@/lib/web3-config";
 import { Web3Provider } from "@/components/providers/web3-provider";
 import { TopBar } from "@/components/layout/top-bar";
-import { AppNav } from "@/components/layout/app-nav";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import "./globals.css";
 
@@ -51,15 +50,20 @@ export default async function RootLayout({
         <link rel="icon" href="/logo.png" />
       </head>
       <body className="h-screen overflow-hidden flex flex-col bg-background">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem enableColorScheme={false}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          forcedTheme="light"
+          enableSystem={false}
+          enableColorScheme={false}
+        >
           <Web3Provider initialState={initialState}>
             <TopBar />
-            <AppNav />
             {/* min-h-0 is load-bearing: without it, flex items default to
                 min-height: auto and grow to their content height, leaving
                 the ScrollArea with no bounded viewport to scroll inside. */}
             <ScrollArea className="flex-1 min-h-0">
-              <main className="max-w-6xl mx-auto px-6">
+              <main className="mx-auto min-h-full max-w-[1160px] bg-background/96 px-10 shadow-[0_0_0_1px_color-mix(in_oklch,var(--border)_78%,transparent),0_18px_60px_color-mix(in_oklch,var(--foreground)_13%,transparent)] sm:px-16 lg:px-[78px]">
                 {children}
               </main>
             </ScrollArea>

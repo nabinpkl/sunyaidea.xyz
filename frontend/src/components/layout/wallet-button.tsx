@@ -34,14 +34,14 @@ export function WalletButton() {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="ml-1 flex items-center h-10 rounded-sm text-[14px] text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-colors font-mono tracking-tight outline-none">
+          <button className="ml-1 flex h-10 items-center rounded-sm bg-primary text-[13px] text-primary-foreground transition-colors hover:opacity-90 font-mono tracking-tight outline-none">
             {activeNetwork && (
               <span className="hidden sm:flex items-center gap-2 pl-3 pr-2.5 h-full text-muted-foreground">
-                <span className="size-2 rounded-full bg-green-500 shrink-0" />
+                <span className="size-2 rounded-full bg-primary-foreground/80 shrink-0" />
                 <span className="lowercase">{activeNetwork.name}</span>
               </span>
             )}
-            <span className="hidden sm:block h-4 w-px bg-foreground/10" />
+            <span className="hidden sm:block h-4 w-px bg-primary-foreground/20" />
             <span className="flex items-center gap-2 px-3 h-full">
               <Wallet className="size-4.5 shrink-0" />
               <span className="hidden sm:block">{address.slice(0, 6)}…{address.slice(-4)}</span>
@@ -92,7 +92,7 @@ export function WalletButton() {
   return (
     <button
       onClick={() => open()}
-      className="ml-1 flex items-center gap-2 px-4 h-10 rounded-sm text-[14px] text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors font-mono tracking-tight"
+      className="ml-1 flex h-10 items-center gap-2 rounded-sm bg-primary px-4 font-mono text-[13px] tracking-tight text-primary-foreground transition-colors hover:opacity-90"
     >
       <Wallet className="size-4.5 shrink-0" />
       <span className="hidden sm:block">Connect Wallet</span>

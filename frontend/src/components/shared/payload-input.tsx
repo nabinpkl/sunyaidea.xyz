@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { keccak256, type Hex } from "viem"
 import { FileDrop } from "./file-drop"
+import { Textarea } from "@/components/ui/textarea"
 
 export interface Payload {
   hash: Hex
@@ -11,7 +12,6 @@ export interface Payload {
 }
 
 interface PayloadInputProps {
-  payload: Payload | null
   onPayload: (p: Payload | null) => void
   disabled?: boolean
 }
@@ -20,21 +20,11 @@ interface PayloadInputProps {
 /// Both paths produce a keccak256 of the raw bytes. The contract cannot
 /// tell which mode produced the hash, and verification uses the same keccak
 /// over the same bytes regardless of how the user re-entered the payload.
-export function PayloadInput({ payload, onPayload, disabled }: PayloadInputProps) {
+export function PayloadInput({ onPayload, disabled }: PayloadInputProps) {
   const [mode, setMode] = useState<"text" | "file">("text")
   const [text, setText] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const hashSeq = useRef(0)
-
-  // Parent clearing the payload (e.g. after commit, or on identity change)
-  // must also clear our local state so the inputs don't contradict the
-  // hash we just told the parent to forget.
-  useEffect(() => {
-    if (payload === null) {
-      setText("")
-      setFile(null)
-    }
-  }, [payload])
 
   const onTextChange = (v: string) => {
     setText(v)
@@ -72,8 +62,8 @@ export function PayloadInput({ payload, onPayload, disabled }: PayloadInputProps
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex self-start border border-border rounded-sm overflow-hidden">
+    <div className="flex flex-col gap-4">
+      <div className="flex self-start overflow-hidden border border-border bg-background/70">
         <ModeTab
           active={mode === "text"}
           disabled={disabled}
@@ -91,18 +81,19 @@ export function PayloadInput({ payload, onPayload, disabled }: PayloadInputProps
       </div>
 
       {mode === "text" ? (
-        <div className="flex flex-col gap-2">
-          <textarea
+        <div className="flex flex-col gap-3">
+          <Textarea
             value={text}
             onChange={(e) => onTextChange(e.target.value)}
             disabled={disabled}
             rows={7}
-            placeholder="Type or paste the idea you want to commit… e.g A new social media platform where you can only follow 10 people."
+            placeholder="Type or paste the idea you want to commit..."
             spellCheck={false}
-            className="px-4 py-3 text-[15px] bg-transparent border border-border rounded-sm outline-none focus:border-foreground/40 transition-colors resize-y min-h-40 disabled:opacity-50 leading-relaxed"
+            className="min-h-56 resize-y border-border bg-background/55 px-4 py-3 text-[15px] leading-relaxed shadow-none focus-visible:ring-1"
           />
-          <div className="text-[11px] text-muted-foreground/70 font-mono tracking-wide">
-            hashed locally · never uploaded
+          <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground">
+            <span className="font-mono tracking-wide">hashed locally · never uploaded</span>
+            <span className="font-mono tracking-wide">{text.length} chars</span>
           </div>
         </div>
       ) : (
@@ -128,9 +119,9 @@ function ModeTab({
       onClick={onClick}
       disabled={disabled}
       className={
-        "h-8 px-4 text-[12px] font-mono tracking-wide transition-colors disabled:opacity-40 disabled:cursor-not-allowed " +
+        "h-8 px-4 text-[12px] font-medium tracking-tight transition-colors disabled:cursor-not-allowed disabled:opacity-40 " +
         (active
-          ? "bg-foreground text-background"
+          ? "bg-primary text-primary-foreground"
           : "text-muted-foreground hover:text-foreground")
       }
     >

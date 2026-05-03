@@ -55,32 +55,31 @@
   --color-sidebar-active-text: var(--sidebar-active-text);
 }
 
-/* fix: define --background in light mode */
 :root {
   color-scheme: light;
-  --background: oklch(1 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: oklch(0.976 0.01 89);
+  --card: oklch(0.988 0.006 89);
+  --card-foreground: oklch(0.18 0.013 145);
+  --popover: oklch(0.992 0.003 84);
+  --popover-foreground: oklch(0.18 0.013 145);
+  --primary: oklch(0.305 0.04 156);
+  --primary-foreground: oklch(0.985 0.003 84);
+  --secondary: oklch(0.942 0.008 88);
+  --secondary-foreground: oklch(0.22 0.014 145);
+  --muted: oklch(0.936 0.008 88);
+  --muted-foreground: oklch(0.48 0.013 120);
+  --accent: oklch(0.916 0.018 152);
+  --accent-foreground: oklch(0.24 0.03 156);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.805 0.012 92);
+  --input: oklch(0.805 0.012 92);
+  --ring: oklch(0.58 0.04 156);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.25rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -89,14 +88,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: oklch(0.18 0.013 145);
   --search-bg: oklch(0.96 0.001 247.86);
   --search-bg-hover: oklch(0.94 0.001 247.86);
   --search-placeholder: oklch(0.60 0.005 247.86);
   --search-text: oklch(0.2 0.005 247.86);
-  --nav-border: oklch(0.9 0 0);
-  --sidebar-active-bg: oklch(0.938 0.057 91.5);
-  --sidebar-active-text: oklch(0.248 0.006 271.176);
+  --nav-border: oklch(0.85 0.011 92);
+  --sidebar-active-bg: oklch(0.916 0.018 152);
+  --sidebar-active-text: oklch(0.24 0.03 156);
 }
 
 .dark {
@@ -149,6 +148,43 @@
   }
   body {
     @apply bg-background text-foreground;
+    position: relative;
+    isolation: isolate;
+    background-image:
+      radial-gradient(circle at 50% 0%, oklch(0.995 0.006 90) 0, transparent 48%),
+      linear-gradient(to right, color-mix(in oklch, var(--border) 26%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklch, var(--border) 20%, transparent) 1px, transparent 1px);
+    background-size: 100% 100%, 62px 62px, 62px 62px;
+    background-position: top center;
+    background-repeat: no-repeat, repeat, repeat;
+  }
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    top: -4rem;
+    bottom: -4rem;
+    z-index: -1;
+    width: max(180px, calc((100vw - 1160px) / 2 + 90px));
+    opacity: 0.86;
+    background-color: oklch(0.958 0.014 90);
+    background-image:
+      linear-gradient(68deg, transparent 0 18%, color-mix(in oklch, var(--border) 38%, transparent) 18.1% 18.45%, transparent 18.55% 100%),
+      linear-gradient(112deg, transparent 0 22%, color-mix(in oklch, var(--border) 34%, transparent) 22.1% 22.45%, transparent 22.55% 100%),
+      linear-gradient(to right, color-mix(in oklch, var(--border) 44%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklch, var(--border) 36%, transparent) 1px, transparent 1px);
+    background-size: 220px 380px, 240px 420px, 32px 32px, 32px 32px;
+    box-shadow: inset 0 0 80px oklch(0.99 0.006 88 / 0.72);
+  }
+  body::before {
+    left: 0;
+    transform: rotate(-8deg) translateX(-24px);
+    transform-origin: top left;
+  }
+  body::after {
+    right: 0;
+    transform: rotate(8deg) translateX(24px);
+    transform-origin: top right;
   }
   html {
     @apply font-sans;
